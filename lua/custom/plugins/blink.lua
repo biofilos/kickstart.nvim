@@ -17,5 +17,24 @@ return {
       signature = { enabled = true },
     },
     opts_extend = { 'sources.default' },
+    completion = {
+      menu = {
+        border = 'single',
+        draw = {
+          treesitter = { 'lsp' },
+          columns = {
+            { 'label', 'label_description', 'source_name', gap = 1 },
+            { 'kind_icon', 'kind' },
+          },
+        },
+      },
+      documentation = {
+        window = { border = 'padded' },
+        auto_show = true,
+        auto_show_delay_ms = 500,
+      },
+      signature = { window = { border = 'padded' } },
+      trigger = { show_on_keyword = true, show_on_trigger_character = true },
+    },
   },
 }
