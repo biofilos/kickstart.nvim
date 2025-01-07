@@ -14,7 +14,6 @@ return {
       sources = {
         default = { 'lsp', 'path', 'snippets', 'buffer' },
       },
-      signature = { enabled = true },
       completion = {
         documentation = {
           auto_show = true,
