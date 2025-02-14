@@ -271,9 +271,10 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
       vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
       vim.keymap.set('n', '<leader>sf', builtin.find_files, { desc = '[S]earch [F]iles' })
+      vim.keymap.set('n', '<leader>sg', builtin.git_files, { desc = '[S]earch [F]iles in Git' })
       vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
       vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
-      vim.keymap.set('n', '<leader>sg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
+      vim.keymap.set('n', '<leader>sG', builtin.live_grep, { desc = '[S]earch by [G]rep' })
       vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
       vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
@@ -455,6 +456,60 @@ require('lazy').setup({
         rust_analyzer = {},
         ts_ls = {},
         svelte = {},
+        html = {
+          filetypes = { 'html', 'templ', 'heex' },
+        },
+        tailwindcss = {
+          filetypes = {
+            'astro',
+            'astro-markdown',
+            'django-html',
+            'htmldjango',
+            'eelixir',
+            'elixir',
+            'gohtml',
+            'gohtmltmpl',
+            'html',
+            'html-eex',
+            'heex',
+            'css',
+            'less',
+            'postcss',
+            'sass',
+            'scss',
+            'javascript',
+            'javascriptreact',
+            'rescript',
+            'typescript',
+            'typescriptreact',
+            'svelte',
+            'templ',
+          },
+          settings = {
+            tailwindCSS = {
+              classAttributes = { 'class', 'className', 'class:list', 'classList', 'ngClass' },
+              includeLanguages = {
+                eelixir = 'html-eex',
+                elixir = 'html-eex',
+                heex = 'html-eex',
+                eruby = 'erb',
+                htmlangular = 'html',
+                templ = 'html',
+              },
+              lint = {
+                cssConflict = 'warning',
+                invalidApply = 'warning',
+                invalidConfigPath = 'error',
+                invalidScreen = 'error',
+                invalidTailwindDirective = 'error',
+                invalidVariant = 'error',
+                recommendedVariantOrder = 'warning',
+              },
+              validate = true,
+            },
+          },
+        },
+        zls = {},
         lua_ls = {
           -- cmd = { ... },
           -- filetypes = { ... },
@@ -531,7 +586,7 @@ require('lazy').setup({
         -- Disable "format_on_save lsp_fallback" for languages that don't
         -- have a well standardized coding style. You can add additional
         -- languages here or re-enable it for the disabled ones.
-        local disable_filetypes = { c = true, cpp = true }
+        local disable_filetypes = { c = true, cpp = true, zig = true }
         local lsp_format_opt
         if disable_filetypes[vim.bo[bufnr].filetype] then
           lsp_format_opt = 'never'
@@ -730,11 +785,11 @@ require('lazy').setup({
   },
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
-    build = ':TUpdate',
+    build = ':TSUpdate',
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
+      ensure_installed = { 'bash', 'c', 'diff', 'html', 'elixir', 'heex', 'eex', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
