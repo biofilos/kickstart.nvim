@@ -372,10 +372,18 @@ require('lazy').setup({
       local servers = {
         -- clangd = {},
         -- gopls = {},
-        -- pyright = {},
+        pyright = {},
         rust_analyzer = {},
         ts_ls = {},
       }
+
+       vim.lsp.config('expert', {
+         cmd = { 'expert', '--stdio' },
+         root_markers = { 'mix.exs', '.git' },
+         filetypes = { 'elixir', 'eelixir', 'heex' },
+         capabilities = capabilities,
+       })
+       vim.lsp.enable 'expert'
 
       -- Ensure the servers and tools above are installed
       --
@@ -385,9 +393,18 @@ require('lazy').setup({
       --
       -- You can press `g?` for help in this menu.
       local ensure_installed = vim.tbl_keys(servers or {})
+      local mason_name_map = {
+        rust_analyzer = 'rust-analyzer',
+        ts_ls = 'typescript-language-server',
+      }
+      ensure_installed = vim.tbl_map(function(tool) return mason_name_map[tool] or tool end, ensure_installed)
       vim.list_extend(ensure_installed, {
         'lua-language-server', -- Lua Language server
         'stylua', -- Used to format Lua code
+        'pyright',
+        'typescript-language-server',
+        'rust-analyzer',
+        'expert',
         -- You can add other tools here that you want Mason to install
       })
 
@@ -604,7 +621,22 @@ require('lazy').setup({
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
     config = function()
-      local filetypes = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' }
+      local filetypes = {
+        'bash',
+        'c',
+        'diff',
+        'eelixir',
+        'elixir',
+        'heex',
+        'html',
+        'lua',
+        'luadoc',
+        'markdown',
+        'markdown_inline',
+        'query',
+        'vim',
+        'vimdoc',
+      }
       require('nvim-treesitter').install(filetypes)
       vim.api.nvim_create_autocmd('FileType', {
         pattern = filetypes,
