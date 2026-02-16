@@ -106,6 +106,27 @@ require('lazy').setup({
         changedelete = { text = '~' },
       },
     },
+    -- nvim v0.8.0
+    {
+      'kdheepak/lazygit.nvim',
+      lazy = true,
+      cmd = {
+        'LazyGit',
+        'LazyGitConfig',
+        'LazyGitCurrentFile',
+        'LazyGitFilter',
+        'LazyGitFilterCurrentFile',
+      },
+      -- optional for floating window border decoration
+      dependencies = {
+        'nvim-lua/plenary.nvim',
+      },
+      -- setting the keybinding for LazyGit with 'keys' is recommended in
+      -- order to load the plugin when the command is run for the first time
+      keys = {
+        { '<leader>lg', '<cmd>LazyGit<cr>', desc = 'LazyGit' },
+      },
+    },
   },
 
   -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
@@ -377,13 +398,13 @@ require('lazy').setup({
         ts_ls = {},
       }
 
-       vim.lsp.config('expert', {
-         cmd = { 'expert', '--stdio' },
-         root_markers = { 'mix.exs', '.git' },
-         filetypes = { 'elixir', 'eelixir', 'heex' },
-         capabilities = capabilities,
-       })
-       vim.lsp.enable 'expert'
+      vim.lsp.config('expert', {
+        cmd = { 'expert', '--stdio' },
+        root_markers = { 'mix.exs', '.git' },
+        filetypes = { 'elixir', 'eelixir', 'heex' },
+        capabilities = capabilities,
+      })
+      vim.lsp.enable 'expert'
 
       -- Ensure the servers and tools above are installed
       --
@@ -566,16 +587,16 @@ require('lazy').setup({
   },
 
   {
-    'folke/tokyonight.nvim',
+    'EdenEast/nightfox.nvim',
     priority = 1000, -- Make sure to load this before all the other start plugins.
     config = function()
       ---@diagnostic disable-next-line: missing-fields
-      require('tokyonight').setup {
+      require('nightfox').setup {
         styles = {
           comments = { italic = false }, -- Disable italics in comments
         },
       }
-      vim.cmd.colorscheme 'tokyonight-night'
+      vim.cmd.colorscheme 'nordfox'
     end,
   },
 
@@ -658,7 +679,7 @@ require('lazy').setup({
   -- require 'kickstart.plugins.indent_line',
   -- require 'kickstart.plugins.lint',
   -- require 'kickstart.plugins.autopairs',
-  -- require 'kickstart.plugins.neo-tree',
+  require 'kickstart.plugins.neo-tree',
   -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
