@@ -857,6 +857,14 @@ require('lazy').setup({
       })
     end,
   },
+
+  { -- Auto close and rename HTML/HEEx tags
+    'windwp/nvim-ts-autotag',
+    event = 'InsertEnter',
+    dependencies = { 'nvim-treesitter/nvim-treesitter' },
+    opts = {},
+  },
+
   -- NOTE: Next step on your Neovim journey: Add/Configure additional plugins for Kickstart
   --
   --  Here are some example plugins that I've included in the Kickstart repository.
