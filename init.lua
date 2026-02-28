@@ -756,6 +756,45 @@ require('lazy').setup({
       vim.cmd.colorscheme 'nordfox'
     end,
   },
+  { -- Replaces the UI for messages, cmdline and the popupmenu
+    'folke/noice.nvim',
+    event = 'VeryLazy',
+    dependencies = {
+      'MunifTanjim/nui.nvim',
+      'rcarriga/nvim-notify',
+    },
+    opts = {
+      lsp = {
+        override = {
+          ['vim.lsp.util.convert_input_to_markdown_lines'] = true,
+          ['vim.lsp.util.stylize_markdown'] = true,
+        },
+      },
+      messages = {
+        view = 'notify', -- use nvim-notify toast boxes for messages
+        view_error = 'notify', -- errors as toast boxes
+        view_warn = 'notify', -- warnings as toast boxes
+      },
+      notify = {
+        enabled = true, -- use noice as vim.notify handler, routing through nvim-notify
+      },
+      presets = {
+        command_palette = true, -- positions cmdline and popupmenu together in the center
+        long_message_to_split = true,
+        lsp_doc_border = true,
+      },
+    },
+  },
+
+  { -- Toast-style notification boxes
+    'rcarriga/nvim-notify',
+    opts = {
+      stages = 'fade_in_slide_out',
+      timeout = 3000,
+      top_down = true,
+    },
+  },
+
   { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
 
   { -- Collection of various small independent plugins/modules
