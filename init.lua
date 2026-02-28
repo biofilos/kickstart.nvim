@@ -5,7 +5,7 @@ vim.o.number = true
 vim.o.relativenumber = true
 vim.o.mouse = 'a'
 vim.o.showmode = false
-vim.schedule(function() vim.o.clipboard = 'unnamedplus' end)
+-- vim.schedule(function() vim.o.clipboard = 'unnamedplus' end)
 vim.o.breakindent = true
 vim.o.undofile = true
 vim.o.ignorecase = true
@@ -21,6 +21,8 @@ vim.o.inccommand = 'split'
 vim.o.cursorline = true
 vim.o.scrolloff = 10
 vim.o.confirm = true
+vim.o.tabstop = 4
+vim.o.shiftwidth = 4
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 -- Clear highlights on search when pressing <Esc> in normal mode
@@ -383,6 +385,12 @@ require('lazy').setup({
           if client and client:supports_method('textDocument/inlayHint', event.buf) then
             map('<leader>th', function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = event.buf }) end, '[T]oggle Inlay [H]ints')
           end
+
+          -- -- Elixir-specific keymaps
+          -- local ft = vim.bo[event.buf].filetype
+          -- if ft == 'elixir' or ft == 'eelixir' or ft == 'heex' then
+          --   map('<leader>es', vim.lsp.codelens.run, 'Elixir insert @spec')
+          -- end
         end,
       })
       local capabilities = require('blink.cmp').get_lsp_capabilities()
@@ -390,21 +398,121 @@ require('lazy').setup({
       -- Enable the following language servers
       --  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
       --  See `:help lsp-config` for information about keys and how to configure
+      --  each table here is equivalent to lspconfig.language.setup{}
       local servers = {
         -- clangd = {},
         -- gopls = {},
-        pyright = {},
+        pyright = {
+          filetypes = { 'python' },
+          settings = {
+            python = {
+              analysis = {
+                typeCheckingMode = 'basic',
+                autoSearchPaths = true,
+                useLibraryCodeForTypes = true,
+                diagnosticMode = 'workspace',
+              },
+            },
+          },
+        },
+        ruff = {
+          filetypes = { 'python' },
+          settings = {
+            python = {
+              analysis = {
+                typeCheckingMode = 'basic',
+                autoSearchPaths = true,
+                useLibraryCodeForTypes = true,
+                diagnosticMode = 'workspace',
+              },
+            },
+          },
+        },
         rust_analyzer = {},
         ts_ls = {},
+        expert = {
+          cmd = { 'expert', '--stdio' },
+          root_markers = { 'mix.exs', '.git' },
+          filetypes = { 'elixir', 'eelixir', 'heex', 'eex' },
+          settings = {
+            expert = {
+              workspaceSymbols = {
+                minQueryLength = 0,
+              },
+              dialyzerEnabled = true,
+              fetchDeps = false,
+              enableTestLenses = true,
+              suggestSpecs = true,
+            },
+          },
+        },
+        tailwindcss = {
+          filetypes = {
+            'html',
+            'css',
+            'scss',
+            'javascript',
+            'javascriptreact',
+            'typescript',
+            'typescriptreact',
+            'vue',
+            'svelte',
+            'heex',
+            'elixir',
+            'eelixir',
+          },
+          root_markers = { 'tailwind.config.js', 'tailwind.config.ts', 'assets/css/app.css', 'assets/tailwind.config.js', 'mix.exs' },
+          init_options = {
+            userLanguages = {
+              elixir = 'html-eex',
+              eelixir = 'html-eex',
+              heex = 'html-eex',
+            },
+          },
+          settings = {
+            tailwindCSS = {
+              includeLanguages = {
+                elixir = 'html',
+                eelixir = 'html',
+                heex = 'html',
+              },
+              experimental = {
+                classRegex = {
+                  [[class: "([^"]*)]],
+                  [[class: '([^']*)]],
+                  '~H""".*class="([^"]*)".*"""',
+                  [[class="([^"]*)]],
+                },
+              },
+              validate = true,
+            },
+          },
+        },
+        html = {
+          filetypes = { 'html', 'heex' },
+        },
+        emmet_language_server = {
+          filetypes = {
+            'css',
+            'eruby',
+            'html',
+            'javascript',
+            'javascriptreact',
+            'less',
+            'sass',
+            'scss',
+            'pug',
+            'typescript',
+            'typescriptreact',
+            'heex',
+            'elixir',
+          },
+          init_options = {
+            showAbbreviationSuggestions = true,
+            showExpandedAbbreviation = 'always',
+          },
+        },
       }
-
-      vim.lsp.config('expert', {
-        cmd = { 'expert', '--stdio' },
-        root_markers = { 'mix.exs', '.git' },
-        filetypes = { 'elixir', 'eelixir', 'heex' },
-        capabilities = capabilities,
-      })
-      vim.lsp.enable 'expert'
 
       -- Ensure the servers and tools above are installed
       --
@@ -417,6 +525,9 @@ require('lazy').setup({
       local mason_name_map = {
         rust_analyzer = 'rust-analyzer',
         ts_ls = 'typescript-language-server',
+        tailwindcss = 'tailwindcss-language-server',
+        emmet_language_server = 'emmet-language-server',
+        html = 'html-lsp',
       }
       ensure_installed = vim.tbl_map(function(tool) return mason_name_map[tool] or tool end, ensure_installed)
       vim.list_extend(ensure_installed, {
@@ -426,7 +537,27 @@ require('lazy').setup({
         'typescript-language-server',
         'rust-analyzer',
         'expert',
-        -- You can add other tools here that you want Mason to install
+        -- python stuff
+        'pyright',
+        'black',
+        'mypy',
+        'ruff',
+        'debugpy',
+        -- web dev stuff
+        'eslint-lsp',
+        'emmet-ls',
+        'emmet-language-server',
+        'prettier',
+        'prettierd',
+        'tailwindcss-language-server',
+        'typescript-language-server',
+        -- markdown
+        'marksman',
+        -- C/CPP stuff
+        'clangd',
+        'clang-format',
+        -- Elixir stuff
+        'expert',
       })
 
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
@@ -453,7 +584,6 @@ require('lazy').setup({
             workspace = {
               checkThirdParty = false,
               -- NOTE: this is a lot slower and will cause issues when working on your own configuration.
-              --  See https://github.com/neovim/nvim-lspconfig/issues/3189
               library = vim.api.nvim_get_runtime_file('', true),
             },
           })
@@ -496,10 +626,47 @@ require('lazy').setup({
       end,
       formatters_by_ft = {
         lua = { 'stylua' },
+        -- python stuff
         python = { 'black' },
-        --
-        -- You can use 'stop_after_first' to run the first available formatter from the list
-        -- javascript = { "prettierd", "prettier", stop_after_first = true },
+        -- web dev stuff
+        javascript = { 'prettierd' },
+        javascriptreact = { 'prettierd' },
+        typescript = { 'prettierd' },
+        typescriptreact = { 'prettierd' },
+        css = { 'prettierd' },
+        html = { 'prettierd', 'djlint' },
+        markdown = { 'prettierd' },
+        -- C/C++ stuff
+        c = { 'clang-format' },
+        cpp = { 'clang-format' },
+        -- rust stuff
+        rust = { 'rustfmt' },
+        -- elixir stuff
+        elixir = { 'mix' },
+        eelixir = { 'mix' },
+        heex = { 'mix' },
+      },
+      format_on_save = {
+        timeout_ms = 5000,
+        lsp_fallback = true,
+      },
+      formatters = {
+        mix = {
+          command = 'direnv',
+          args = function(_, ctx)
+            return {
+              'exec',
+              vim.fn.getcwd(),
+              'mix',
+              'format',
+              '--stdin-filename',
+              ctx.filename,
+              '-',
+            }
+          end,
+          stdin = true,
+          timeout_ms = 5000,
+        },
       },
     },
   },
@@ -563,7 +730,6 @@ require('lazy').setup({
 
       completion = {
         -- By default, you may press `<c-space>` to show the documentation.
-        -- Optionally, set `auto_show = true` to show the documentation after a delay.
         documentation = { auto_show = false, auto_show_delay_ms = 500 },
       },
 
@@ -572,16 +738,7 @@ require('lazy').setup({
       },
 
       snippets = { preset = 'luasnip' },
-
-      -- Blink.cmp includes an optional, recommended rust fuzzy matcher,
-      -- which automatically downloads a prebuilt binary when enabled.
-      --
-      -- By default, we use the Lua implementation instead, but you may enable
-      -- the rust implementation via `'prefer_rust_with_warning'`
-      --
-      -- See :h blink-cmp-config-fuzzy for more information
       fuzzy = { implementation = 'prefer_rust_with_warning' },
-      -- Shows a signature help window while you type arguments for a function
       signature = { enabled = true },
     },
   },
@@ -593,14 +750,12 @@ require('lazy').setup({
       ---@diagnostic disable-next-line: missing-fields
       require('nightfox').setup {
         styles = {
-          comments = { italic = false }, -- Disable italics in comments
+          comments = { italic = false },
         },
       }
       vim.cmd.colorscheme 'nordfox'
     end,
   },
-
-  -- Highlight todo, notes, etc in comments
   { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
 
   { -- Collection of various small independent plugins/modules
@@ -633,9 +788,6 @@ require('lazy').setup({
       -- cursor location to LINE:COLUMN
       ---@diagnostic disable-next-line: duplicate-set-field
       statusline.section_location = function() return '%2l:%-2v' end
-
-      -- ... and there is more!
-      --  Check out: https://github.com/nvim-mini/mini.nvim
     end,
   },
 
@@ -646,8 +798,8 @@ require('lazy').setup({
         'bash',
         'c',
         'diff',
-        'eelixir',
         'elixir',
+        'eex',
         'heex',
         'html',
         'lua',
@@ -657,6 +809,7 @@ require('lazy').setup({
         'query',
         'vim',
         'vimdoc',
+        'rust',
       }
       require('nvim-treesitter').install(filetypes)
       vim.api.nvim_create_autocmd('FileType', {
@@ -665,11 +818,6 @@ require('lazy').setup({
       })
     end,
   },
-
-  -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
-  -- init.lua. If you want these files, they are in the repository, so you can just download them and
-  -- place them in the correct locations.
-
   -- NOTE: Next step on your Neovim journey: Add/Configure additional plugins for Kickstart
   --
   --  Here are some example plugins that I've included in the Kickstart repository.
@@ -680,13 +828,13 @@ require('lazy').setup({
   -- require 'kickstart.plugins.lint',
   -- require 'kickstart.plugins.autopairs',
   require 'kickstart.plugins.neo-tree',
-  -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
+  require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    This is the easiest way to modularize your config.
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
-  -- { import = 'custom.plugins' },
+  { import = 'custom.plugins' },
   --
   -- For additional information with loading, sourcing and examples see `:help lazy.nvim-🔌-plugin-spec`
   -- Or use telescope!
