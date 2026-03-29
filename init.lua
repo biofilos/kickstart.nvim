@@ -611,18 +611,14 @@ require('lazy').setup({
     opts = {
       notify_on_error = false,
       format_on_save = function(bufnr)
-        -- Disable "format_on_save lsp_fallback" for languages that don't
-        -- have a well standardized coding style. You can add additional
-        -- languages here or re-enable it for the disabled ones.
         local disable_filetypes = { c = true, cpp = true }
-        if disable_filetypes[vim.bo[bufnr].filetype] then
-          return nil
-        else
-          return {
-            timeout_ms = 500,
-            lsp_format = 'fallback',
-          }
-        end
+        local slow_filetypes = { elixir = true, eelixir = true, heex = true }
+        local ft = vim.bo[bufnr].filetype
+        if disable_filetypes[ft] then return nil end
+        return {
+          timeout_ms = slow_filetypes[ft] and 5000 or 500,
+          lsp_format = 'fallback',
+        }
       end,
       formatters_by_ft = {
         lua = { 'stylua' },
@@ -634,7 +630,7 @@ require('lazy').setup({
         typescript = { 'prettierd' },
         typescriptreact = { 'prettierd' },
         css = { 'prettierd' },
-        html = { 'prettierd', 'djlint' },
+        html = { 'prettierd', 'djlint', stop_after_first = true },
         markdown = { 'prettierd' },
         -- C/C++ stuff
         c = { 'clang-format' },
@@ -646,25 +642,8 @@ require('lazy').setup({
         eelixir = { 'mix' },
         heex = { 'mix' },
       },
-      format_on_save = {
-        timeout_ms = 5000,
-        lsp_fallback = true,
-      },
       formatters = {
         mix = {
-          command = 'direnv',
-          args = function(_, ctx)
-            return {
-              'exec',
-              vim.fn.getcwd(),
-              'mix',
-              'format',
-              '--stdin-filename',
-              ctx.filename,
-              '-',
-            }
-          end,
-          stdin = true,
           timeout_ms = 5000,
         },
       },
